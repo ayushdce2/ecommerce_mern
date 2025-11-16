@@ -3,7 +3,8 @@ const productModel = require("../models/productModel.js");
 //createing products
 
 const createProducts = async (req,res)=>{
-    try{console.log(req.body)
+    try{
+        // console.log(req.body)
     const product = await productModel.create(req.body);
     res.status(201).json({success:true,product})
     }catch(error){
@@ -17,7 +18,7 @@ const getAllProducts = async (req,res)=>{
 
     try{
         const {searchCategory, sortingbyprice, currentPage} = req.query;
-        console.log(searchCategory, sortingbyprice, currentPage);
+        // console.log(searchCategory, sortingbyprice, currentPage);
 //searching by category
         const query = {};
         if(searchCategory){
@@ -42,7 +43,8 @@ const getAllProducts = async (req,res)=>{
         }
 
 
-        console.log(allProducts,"allProducts");
+        // console.log(allProducts,"allProducts");
+        
         res.status(200).json({
             success: true,
             allProducts,

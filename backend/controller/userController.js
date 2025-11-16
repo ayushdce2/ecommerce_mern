@@ -3,7 +3,7 @@ const bcryptjs = require("bcryptjs");
 
 
 const registerUser = async (req,res)=>{
-
+try{
     const {name,email,password} = req.body;
 
     // password hashing
@@ -11,7 +11,7 @@ const registerUser = async (req,res)=>{
     const hex_password = await bcryptjs.hash(password,10);
 
     const newUserRegister = await userModel.create({name,email,password:hex_password,avatar:{public_id:"temp id",url:"temp url"}});
-    
+    console.log(newUserRegister,"newUserRegister")
     // const token = jwt.sign({email:email},process.env.jwt_secret,{expiresIn:process.env.jwt_expire})
 
     const token = newUserRegister.getJWTToken();
@@ -22,6 +22,11 @@ const registerUser = async (req,res)=>{
     .json({success:true,token,newUserRegister,message:"User registered Successfully"});
 
     console.log(newUserRegister);
+    }catch(error){
+        // console.log(error)
+        
+        error.code == "11000" && res.status(500).json({message:"User Already esists",error:error.errmsg})
+    }
 
 }
 
