@@ -68,4 +68,41 @@ const logoutUser = (req,res)=>{
     return res.status(200).json({success:true,message:"LoggedOut successfully"})
 }
 
-module.exports = {registerUser, loginUser, logoutUser}
+const resetPassword = async (req,res)=>{
+    // console.log(req.body,"req.body");
+    const {email} = req.body;
+    const user_resetPassword = await userModel.findOne({email});
+    if(!user_resetPassword){
+        return res.status(400).json({message:"user does not exists"})
+    }
+    let resetToken;
+    try{
+
+        resetToken = user_resetPassword.generatePasswordResetToken();
+        user_resetPassword.save();
+        res.status(200).json({resetToken})
+
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({message:"reset token not generated"})
+    }
+
+    const resetPasswordURL = `http://localhost/api/v1/user/resetpassword/${resetToken}`;
+    console.log(resetPasswordURL,"resetPasswordURL");
+    const resetPasswordMessage = `click to reset password ${resetPasswordURL} \n\n Link will expire soon`;
+
+    try{
+        // send email
+
+        await sendEmail({email: user_resetPassword.email,subject:"Password reset request",message:resetPasswordMessage})
+        res.status(200).json({message:`email is sent to ${user_resetPassword.email} successfully`})
+
+    }catch(error){
+        user_resetPassword.resetPasswordExpire = undefined;
+        user_resetPassword.resetPasswordToken = undefined;
+        await user_resetPassword.save();
+        return res.status(500).json({message:"email could not be sent try again later"})
+    }
+
+}
+module.exports = {registerUser, loginUser, logoutUser, resetPassword}

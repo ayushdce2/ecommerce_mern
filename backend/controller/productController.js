@@ -5,6 +5,7 @@ const productModel = require("../models/productModel.js");
 const createProducts = async (req,res)=>{
     try{
         // console.log(req.body)
+        req.body.user = req.user.id;
     const product = await productModel.create(req.body);
     res.status(201).json({success:true,product})
     }catch(error){
@@ -44,7 +45,7 @@ const getAllProducts = async (req,res)=>{
 
 
         // console.log(allProducts,"allProducts");
-        
+
         res.status(200).json({
             success: true,
             allProducts,

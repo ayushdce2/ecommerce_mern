@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 
 const userSchema = new mongoose.Schema({
@@ -59,6 +60,13 @@ userSchema.methods.cookieData = function () {
         expires:new Date(Date.now()+process.env.EXPIRE_COOKIE*24*60*60*1000),
         httpOnly:true
     });
+};
+
+userSchema.methods.generatePasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    this.resetPasswordExpire = Date.now()+15*60*1000; //token will expire in 15 min
+    return resetToken;
 };
 
 
